@@ -1,46 +1,63 @@
 import React, { useState } from 'react';
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  UploadOutlined,
   UserOutlined,
+  VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-const { Header, Content, Footer, Sider } = Layout;
-function getItem(label, key, icon, children) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  };
-}
-const items = [
-  getItem('Option 1', '1', <PieChartOutlined />),
-  getItem('Option 2', '2', <DesktopOutlined />),
-  getItem('User', 'sub1', <UserOutlined />, [
-    getItem('Tom', '3'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
-  ]),
-  getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-  getItem('Files', '9', <FileOutlined />),
-];
-const App = () => {
+import { Button, Layout, Menu, theme } from 'antd';
+import {useNavigate} from "react-router-dom";
+const { Header, Sider, Content } = Layout;
+const LayoutOne = (props) => {
+
   const [collapsed, setCollapsed] = useState(false);
+  const Navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  
+
+  const HandleMenu = (menu) => {
+    Navigate(menu.key);
+  }
+
+  const menu = 
+    [
+        {
+          key: '/',
+          icon: <UserOutlined />,
+          label: 'Dashboard',
+        },
+        {
+          key: '/item',
+          icon: <VideoCameraOutlined />,
+          label: 'Item',
+        },
+        {
+          key: '/vendor',
+          icon: <UploadOutlined />,
+          label: 'Vendor',
+        },
+        {
+          key: '/customer',
+          icon: <UserOutlined />,
+          label: 'Customer',
+        }
+    ]
+  
   return (
-    <Layout
-      style={{
-        minHeight: '100vh',
-      }}
-    >
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+    <Layout>
+      <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
-        <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
+        
+        <Menu
+          onClick={HandleMenu}
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={['/']}
+          items={menu}
+        />
       </Sider>
       <Layout>
         <Header
@@ -48,40 +65,31 @@ const App = () => {
             padding: 0,
             background: colorBgContainer,
           }}
-        />
+        >
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 64,
+              height: 64,
+            }}
+          />
+        </Header>
         <Content
           style={{
-            margin: '0 16px',
+            margin: '24px 16px',
+            padding: 24,
+            minHeight: 630,
+            background: colorBgContainer,
+            borderRadius: borderRadiusLG,
           }}
         >
-          <Breadcrumb
-            style={{
-              margin: '16px 0',
-            }}
-          >
-            <Breadcrumb.Item>User</Breadcrumb.Item>
-            <Breadcrumb.Item>Bill</Breadcrumb.Item>
-          </Breadcrumb>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            Bill is a cat.
-          </div>
+          {props.children}
         </Content>
-        <Footer
-          style={{
-            textAlign: 'center',
-          }}
-        >
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
       </Layout>
     </Layout>
   );
 };
-export default App;
+export default LayoutOne;
