@@ -36,6 +36,7 @@ import axios from 'axios';
 
   const HandleEdit = () =>{
     setIsModalOpen(true);
+    //not bad
   }
   const HandleDelete = () =>{
 
