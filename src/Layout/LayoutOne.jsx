@@ -5,6 +5,12 @@ import {
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
+  AreaChartOutlined,
+  FileImageOutlined,
+  ShoppingCartOutlined,
+  InfoOutlined,
+  ContactsOutlined,
+  ProductOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import {useNavigate} from "react-router-dom";
@@ -26,18 +32,38 @@ const LayoutOne = (props) => {
     [
         {
           key: '/',
-          icon: <UserOutlined />,
+          icon: <AreaChartOutlined />,
           label: 'Dashboard',
         },
         {
-          key: '/item',
-          icon: <VideoCameraOutlined />,
-          label: 'Item',
+          key: '/users',
+          icon: <UserOutlined />,
+          label: 'Users',
         },
         {
-          key: '/vendor',
-          icon: <UploadOutlined />,
-          label: 'Vendor',
+          key: '/slides',
+          icon: <FileImageOutlined />,
+          label: 'Slides',
+        },
+        {
+          key: '/cartpage',
+          icon: <ShoppingCartOutlined />,
+          label: 'Cart Page',
+        },
+        {
+          key: '/aboutus',
+          icon: <InfoOutlined />,
+          label: 'About Us',
+        },
+        {
+          key: '/contact',
+          icon: <ContactsOutlined />,
+          label: 'Contact',
+        },
+        {
+          key: '/items',
+          icon: <ProductOutlined />,
+          label: 'Items',
         },
         {
           key: '/customer',

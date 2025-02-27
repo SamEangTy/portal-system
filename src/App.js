@@ -11,7 +11,7 @@ function App() {
           <Route path="/" />
           <Route path="/customer" element={<Customer />} />
           <Route path="/vendor" element={<Vendor />} />
-          <Route path="/item" element={<Item />} />
+          <Route path="/items" element={<Item />} />
         </Routes>
       </LayoutOne>
     </BrowserRouter>
