@@ -1,32 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Space, Table,Popconfirm, Modal,Image ,InputNumber} from 'antd';
-// import { createStyles } from 'antd-style';
 import { Row, Col } from 'antd';
 import axios from 'axios';
-// const useStyle = createStyles(({ css, token }) => {
-//   const { antCls } = token;
-//   return {
-//     customTable: css`
-//       ${antCls}-table {
-//         ${antCls}-table-container {
-//           ${antCls}-table-body,
-//           ${antCls}-table-content {
-//             scrollbar-width: thin;
-//             scrollbar-color: #eaeaea transparent;
-//             scrollbar-gutter: stable;
-//           }
-//         }
-//       }
-//     `,
-//   };
-// });
+
   const Item = () => {
   const [Item, setItem] = useState([]);
-  const [count, setCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
-  const [pictureURL,setPictureURL] = useState([]);
   useEffect(() => {
     const username = "Admin";
     const password = "h2qGeJ0AalVZJwQJDPQ27rbBeEItrQAPTGUl4X+JJ+o=";
@@ -71,21 +51,7 @@ import axios from 'axios';
   }
   const handleChange = (pagination, filters, sorter) => {
     console.log('Various parameters', pagination, filters, sorter);
-    setFilteredInfo(filters);
     setSortedInfo(sorter);
-  };
-  const clearFilters = () => {
-    setFilteredInfo({});
-  };
-  const clearAll = () => {
-    setFilteredInfo({});
-    setSortedInfo({});
-  };
-  const setAgeSort = () => {
-    setSortedInfo({
-      order: 'descend',
-      columnKey: 'number',
-    });
   };
   const columns = [
   {
@@ -137,7 +103,6 @@ import axios from 'axios';
     width : 70,
     render: (itemPicture) => (
       <Image
-      // http://localhost:5048/BC250/api/net/custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/items(da3b5306-67f1-ee11-a201-6045bdc8c10e)/picture
        //http://localhost:5048/BC250/api/net/custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/items(da3b5306-67f1-ee11-a201-6045bdc8c10e)/picture/pictureContent"
         src={itemPicture}
         alt={"Image"}
@@ -219,22 +184,6 @@ import axios from 'axios';
           />
           </Space>
         </Col>
-
-        {/* Right Half - Image Preview */}
-        {/* <Col span={12} style={{ textAlign: 'center' }}> */}
-          {/* <p><strong>Picture:</strong></p> */}
-          {/* <Image
-            width={200}
-            src={Item.imageUrl}
-            alt="Product"
-            style={{ borderRadius: '8px', border: '1px solid #ddd', padding: '5px' }}
-          /> */}
-          {/* <Input 
-            placeholder="Image URL" 
-            value={Item.imageUrl} 
-            onChange={(e) => handleChange('imageUrl', e.target.value)} 
-          /> */}
-        {/* </Col> */}
       </Row>
     </Modal>
         </Space>
