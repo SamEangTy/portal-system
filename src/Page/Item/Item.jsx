@@ -26,6 +26,7 @@ import axios from 'axios';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
+  const [pictureURL,setPictureURL] = useState([]);
   useEffect(() => {
     const username = "Admin";
     const password = "h2qGeJ0AalVZJwQJDPQ27rbBeEItrQAPTGUl4X+JJ+o=";
@@ -36,20 +37,22 @@ import axios from 'axios';
         "http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items",
         {
           headers: {
-            Authorization: `Basic ${authToken}`, // Basic Authorization Header
+            Authorization: `Basic ${authToken}`,
           },
         }
       )
       .then((response) => {
-        // setList(response.data)
-        setItem(response.data.value)
-        // setProducts(response.data); // Uncomment if you have a state for products
+        const updatedItems = response.data.value.map((item) => ({
+          ...item,
+          itemPicture: `http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items(${item.id})/picture/pictureContent`,
+        }));
+        setItem(updatedItems);
+        console.log(updatedItems);
       })
       .catch((error) => {
         console.error("There was an error fetching the products!", error);
       });
-  }, []); // Dependency array, leave empty if no dependencies
-  // const { styles } = useStyle();
+  }, []);
 
   const HandleEdit = () =>{
     setIsModalOpen(true);
@@ -129,14 +132,15 @@ import axios from 'axios';
   },
   {
     title: 'Picture',
-    dataIndex: 'imageUrl',
-    key: 'imageUrl',
-    width : 50,
-    render: (imageUrl) => (
+    dataIndex: 'itemPicture',
+    key: 'itemPicture',
+    width : 70,
+    render: (itemPicture) => (
       <Image
-        // width={50}
-        src={"https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"}
-        alt="Product"
+      // http://localhost:5048/BC250/api/net/custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/items(da3b5306-67f1-ee11-a201-6045bdc8c10e)/picture
+       //http://localhost:5048/BC250/api/net/custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/items(da3b5306-67f1-ee11-a201-6045bdc8c10e)/picture/pictureContent"
+        src={itemPicture}
+        alt={"Image"}
         style={{ borderRadius: '5px' }}
       />
     )
