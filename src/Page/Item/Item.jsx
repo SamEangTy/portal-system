@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Space, Table,Popconfirm, Modal,Image } from 'antd';
-import { createStyles } from 'antd-style';
+import { Button, Input, Space, Table,Popconfirm, Modal,Image ,InputNumber} from 'antd';
+// import { createStyles } from 'antd-style';
+import { Row, Col } from 'antd';
 import axios from 'axios';
-const useStyle = createStyles(({ css, token }) => {
-  const { antCls } = token;
-  return {
-    customTable: css`
-      ${antCls}-table {
-        ${antCls}-table-container {
-          ${antCls}-table-body,
-          ${antCls}-table-content {
-            scrollbar-width: thin;
-            scrollbar-color: #eaeaea transparent;
-            scrollbar-gutter: stable;
-          }
-        }
-      }
-    `,
-  };
-});
-
-
-// const GetAPI = () => {
-  // axios.get('http://localhost:6048/BC240/api/NET/Custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/purchaseRequests')
+// const useStyle = createStyles(({ css, token }) => {
+//   const { antCls } = token;
+//   return {
+//     customTable: css`
+//       ${antCls}-table {
+//         ${antCls}-table-container {
+//           ${antCls}-table-body,
+//           ${antCls}-table-content {
+//             scrollbar-width: thin;
+//             scrollbar-color: #eaeaea transparent;
+//             scrollbar-gutter: stable;
+//           }
+//         }
+//       }
+//     `,
+//   };
+// });
   const Item = () => {
   const [Item, setItem] = useState([]);
   const [count, setCount] = useState(0);
@@ -52,7 +49,8 @@ const useStyle = createStyles(({ css, token }) => {
         console.error("There was an error fetching the products!", error);
       });
   }, []); // Dependency array, leave empty if no dependencies
-  const { styles } = useStyle();
+  // const { styles } = useStyle();
+
   const HandleEdit = () =>{
     setIsModalOpen(true);
   }
@@ -86,32 +84,6 @@ const useStyle = createStyles(({ css, token }) => {
       columnKey: 'number',
     });
   };
-
-  // "number": "1000",
-  // "displayName": "Bicyclc ty 02",
-  // "displayName2": "",
-  // "type": "Inventory",
-  // "itemCategoryId": "00000000-0000-0000-0000-000000000000",
-  // "itemCategoryCode": "",
-  // "blocked": false,
-  // "gtin": "",
-  // "inventory": 188,
-  // "unitPrice": 4000,
-  // "priceIncludesTax": false,
-  // "unitCost": 350.595,
-  // "lastDirectCost": 3782.96,
-  // "taxGroupId": "00000000-0000-0000-0000-000000000000",
-  // "taxGroupCode": "",
-  // "baseUnitOfMeasureId": "e30a26e2-66f1-ee11-a201-6045bdc8c10e",
-  // "baseUnitOfMeasureCode": "PCS",
-  // "generalProductPostingGroupId": "08a8cbe6-66f1-ee11-a201-6045bdc8c10e",
-  // "generalProductPostingGroupCode": "RETAIL",
-  // "VATProdPostingGroup": "GST15",
-  // "WHTProductPostingGroup": "WHT",
-  // "inventoryPostingGroupId": "00000000-0000-0000-0000-000000000000",
-  // "inventoryPostingGroupCode": "FINISHED",
-  // "lastModifiedDateTime": "2025-02-05T03:53:29.79Z",
-  // "itemTemplate": ""
   const columns = [
   {
     title: 'No.',
@@ -198,14 +170,6 @@ const useStyle = createStyles(({ css, token }) => {
     </div>,
   },
 ];
-const dataSource = Array.from({
-  length: 100,
-}).map((_, i) => ({
-  key: i,
-  number: `PR-2411-00 ${i+1}`,
-  age: 32,
-  address: `London, Park Lane no. ${i}`,
-}));
   return (
     <div>
       <div>
@@ -217,20 +181,62 @@ const dataSource = Array.from({
           <Button type="primary" onClick={showModal}>
            New
           </Button>
-          <Modal 
-          width={1200}
-          title="Item Card" 
-          open={isModalOpen} 
-          onOk={handleOk} 
-          onCancel={handleCancel}>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-          </Modal>
+          <Modal
+            width={800} 
+            title="Item Card"
+            open={isModalOpen}
+            onOk={() => handleOk(Item)}
+            onCancel={handleCancel}
+          >
+      <Row gutter={16}>
+        {/* Left Half - Editable Item Details */}
+        <Col span={12}>
+          <Space direction="vertical">
+            
+          <Input addonBefore="Item No." value={Item.number} onChange={(e) => handleChange('number', e.target.value)} />
+          <Input addonBefore="Item No." value={Item.displayName} onChange={(e) => handleChange('displayName', e.target.value)} />
+          <Input addonBefore="Item No." value={Item.displayName2} onChange={(e) => handleChange('displayName2', e.target.value)} />
+          </Space>
+        </Col>
+        <Col span={12}>
+          <Space direction="vertical">
+          <Input addonBefore="Item No." value={Item.type} onChange={(e) => handleChange('type', e.target.value)} />
+          <InputNumber 
+            addonBefore="Item No." 
+            style={{ width: '100%' }}
+            value={Item.unitPrice} 
+            onChange={(value) => handleChange('unitPrice', value)} 
+            />
+          <InputNumber 
+          addonBefore="Item No." 
+          style={{ width: '100%' }}
+          value={Item.inventory} 
+          onChange={(value) => handleChange('inventory', value)} 
+          />
+          </Space>
+        </Col>
+
+        {/* Right Half - Image Preview */}
+        {/* <Col span={12} style={{ textAlign: 'center' }}> */}
+          {/* <p><strong>Picture:</strong></p> */}
+          {/* <Image
+            width={200}
+            src={Item.imageUrl}
+            alt="Product"
+            style={{ borderRadius: '8px', border: '1px solid #ddd', padding: '5px' }}
+          /> */}
+          {/* <Input 
+            placeholder="Image URL" 
+            value={Item.imageUrl} 
+            onChange={(e) => handleChange('imageUrl', e.target.value)} 
+          /> */}
+        {/* </Col> */}
+      </Row>
+    </Modal>
         </Space>
       </div>
       <Table
-        className={styles.customTable}
+        // className={styles.customTable}
         columns={columns}
         dataSource={Item}
         onChange={handleChange}
