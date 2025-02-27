@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Space, Table,Popconfirm, Modal } from 'antd';
+import { Button, Input, Space, Table,Popconfirm, Modal,Image } from 'antd';
 import { createStyles } from 'antd-style';
 import axios from 'axios';
 const useStyle = createStyles(({ css, token }) => {
@@ -115,7 +115,7 @@ const useStyle = createStyles(({ css, token }) => {
   const columns = [
   {
     title: 'No.',
-    width: 150,
+    width: 100,
     dataIndex: 'number',
     key: 'number',
     sorter: (a, b) => a.number - b.number,
@@ -127,7 +127,7 @@ const useStyle = createStyles(({ css, token }) => {
   },
   {
     title: 'Description',
-    width: 150,
+    width: 100,
     dataIndex: 'displayName',
     key: 'displayName',
   },
@@ -154,6 +154,20 @@ const useStyle = createStyles(({ css, token }) => {
     width: 50,
     dataIndex: 'inventory',
     key: 'inventory',
+  },
+  {
+    title: 'Picture',
+    dataIndex: 'imageUrl',
+    key: 'imageUrl',
+    width : 50,
+    render: (imageUrl) => (
+      <Image
+        // width={50}
+        src={"https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"}
+        alt="Product"
+        style={{ borderRadius: '5px' }}
+      />
+    )
   },
   
   {
