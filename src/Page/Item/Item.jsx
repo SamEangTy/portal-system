@@ -1,205 +1,278 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Input, Space, Table,Popconfirm, Modal,Image ,InputNumber} from 'antd';
-import { Row, Col } from 'antd';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Space, Table, Popconfirm, Image, Modal, Row, Col, Input, Button, Form, Card, Select, message,Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import axios from "axios";
 
-  const Item = () => {
-  const [Item, setItem] = useState([]);
+const { Option } = Select;
+
+const Item = () => {
+  const [items, setItems] = useState([]); // Holds fetched items
+  const [filteredItems, setFilteredItems] = useState([]); // Holds filtered items based on search
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortedInfo, setSortedInfo] = useState({});
-  useEffect(() => {
-    const username = "Admin";
-    const password = "h2qGeJ0AalVZJwQJDPQ27rbBeEItrQAPTGUl4X+JJ+o=";
-    const authToken = btoa(`${username}:${password}`); // Base64 encoding for Basic Auth
+  const [loading, setLoading] = useState(false); // Loading state for insert/update
+  const [isEditing, setIsEditing] = useState(false); // Track if editing
+  const [currentItem, setCurrentItem] = useState(null); // Track selected item
 
+  const username = "Admin";
+  const password = "h2qGeJ0AalVZJwQJDPQ27rbBeEItrQAPTGUl4X+JJ+o=";
+  const authToken = btoa(`${username}:${password}`); // Base64 encoding for Basic Auth
+
+  // Fetch Items
+  useEffect(() => {
     axios
       .get(
         "http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items",
-        {
-          headers: {
-            Authorization: `Basic ${authToken}`,
-          },
-        }
+        { headers: { Authorization: `Basic ${authToken}` } }
       )
       .then((response) => {
         const updatedItems = response.data.value.map((item) => ({
           ...item,
           itemPicture: `http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items(${item.id})/picture/pictureContent`,
         }));
-        setItem(updatedItems);
-        console.log(updatedItems);
+        setItems(updatedItems);
+        setFilteredItems(updatedItems); // Initially, display all items
       })
-      .catch((error) => {
-        console.error("There was an error fetching the products!", error);
-      });
+      .catch((error) => console.error("Error fetching items:", error));
   }, []);
 
-  const HandleEdit = () =>{
-    setIsModalOpen(true);
-    //not bad
-  }
-  const HandleDelete = () =>{
+  // Handle input changes for new/editing item
+  const handleInputChange = (field, value) => {
+    setCurrentItem({ ...currentItem, [field]: value });
+  };
 
-  }
-  const showModal = () => {
+  // Show Modal for Adding New Item
+  const showAddModal = () => {
+    setCurrentItem({ number: "", displayName: "", displayName2: "", type: "", unitPrice: 0, inventory: 0 });
+    setIsEditing(false);
     setIsModalOpen(true);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
+
+  // Show Modal for Editing Item
+  const showEditModal = (item) => {
+    setCurrentItem(item);
+    setIsEditing(true);
+    setIsModalOpen(true);
   };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  }
-  const handleChange = (pagination, filters, sorter) => {
-    console.log('Various parameters', pagination, filters, sorter);
-    setSortedInfo(sorter);
+
+  // Save Item (Insert/Update)
+  const saveItem = async () => {
+    setLoading(true);
+    try {
+      const dynamicItem = {
+        number: currentItem?.number || "",
+        displayName: currentItem?.displayName || "",
+        displayName2: currentItem?.displayName2 || "",
+        type: currentItem?.type || "Inventory",
+        // unitPrice: currentItem?.unitPrice || 0,
+        // inventory: currentItem?.inventory || 0,
+      };
+
+      if (isEditing) {
+        await axios.patch(
+          `http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items(${currentItem.id})`,
+          dynamicItem,
+          { headers: { Authorization: `Basic ${authToken}`, "Content-Type": "application/json" } }
+        );
+        message.success("Item updated successfully!");
+        setItems((prev) => prev.map((item) => (item.id === currentItem.id ? currentItem : item)));
+      } else {
+        const response = await axios.post(
+          "http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items",
+          dynamicItem,
+          { headers: { Authorization: `Basic ${authToken}`, "Content-Type": "application/json" } }
+        );
+        message.success("Item added successfully!");
+        setItems([...items, dynamicItem]);
+      }
+
+      setIsModalOpen(false);
+      setCurrentItem(null);
+    } catch (error) {
+      message.error("Operation failed. Check console.");
+      console.error("Save Error:", error.response ? error.response.data : error.message);
+    } finally {
+      setLoading(false);
+    }
   };
-  const columns = [
-  {
-    title: 'No.',
-    width: 100,
-    dataIndex: 'number',
-    key: 'number',
-    sorter: (a, b) => a.number - b.number,
-    sortOrder: sortedInfo.columnKey === 'number' ? sortedInfo.order : null,
-    ellipsis: true,
-    fixed: 'left',
-    render: (text) => <a style={{color:'#00838F'}}>{text}</a>,
-   
-  },
-  {
-    title: 'Description',
-    width: 100,
-    dataIndex: 'displayName',
-    key: 'displayName',
-  },
-  {
-    title: 'Description 2',
-    width: 150,
-    dataIndex: 'displayName2',
-    key: 'displayName2',
-  },
-  {
-    title: 'Item Type',
-    width: 50,
-    dataIndex: 'type',
-    key: 'type',
-  },
-  {
-    title: 'Unit Price',
-    width: 50,
-    dataIndex: 'unitPrice',
-    key: 'unitPrice',
-  },
-  {
-    title: 'Quanity',
-    width: 50,
-    dataIndex: 'inventory',
-    key: 'inventory',
-  },
-  {
-    title: 'Picture',
-    dataIndex: 'itemPicture',
-    key: 'itemPicture',
-    width : 70,
-    render: (itemPicture) => (
-      <Image
-       //http://localhost:5048/BC250/api/net/custom/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/items(da3b5306-67f1-ee11-a201-6045bdc8c10e)/picture/pictureContent"
-        src={itemPicture}
-        alt={"Image"}
-        style={{ borderRadius: '5px' }}
-      />
-    )
-  },
+
+  // Delete Item
+  const deleteItem = async (itemId) => {
+    setLoading(true);
+    try {
+      await axios.delete(
+        `http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items(${itemId})`,
+        { headers: { Authorization: `Basic ${authToken}` } }
+      );
+      message.success("Item deleted successfully!");
   
-  {
-    title: 'Action',
-    // key: 'operation',
-    fixed: 'right',
-    width: 90,
-    type : 'secondary',
-    render: () => <div style={{width:90}}>
-      <Space>
-        <Button 
-        color="primary" 
-        variant="filled" 
-        style={{fontSize:10,padding:10}}
-        onClick={showModal}
-        >
-          Edit
-        </Button>
-        <Popconfirm
-          title="Delete the record"
-          description="Are you sure to delete this record?"
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button color="danger" variant="filled" style={{fontSize:10,padding:10}}>Delete</Button>
-        </Popconfirm>
-      </Space>
-    </div>,
-  },
-];
+      // Fetch updated items after deletion
+      const response = await axios.get(
+        "http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items",
+        { headers: { Authorization: `Basic ${authToken}` } }
+      );
+      const updatedItems = response.data.value.map((item) => ({
+        ...item,
+        itemPicture: `http://localhost:5048/BC250/api/v2.0/companies(6bb14571-2c38-ef11-8c07-48a472dd88bb)/Items(${item.id})/picture/pictureContent`,
+      }));
+  
+      setItems(updatedItems);
+      setFilteredItems(updatedItems); // Update filteredItems as well
+    } catch (error) {
+      message.error("Failed to delete item.");
+      console.error("Delete Error:", error.response ? error.response.data : error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Search Handler
+  const handleSearch = (value) => {
+    if (typeof value === 'string') {
+      // Convert the search term to lowercase for case-insensitive comparison
+      const searchTerm = value.toLowerCase();
+  
+      // Filter items based on the search query (matching number)
+      const filteredData = items.filter((item) =>
+        item.number.toLowerCase().includes(searchTerm) // Case insensitive match
+      );
+  
+      setFilteredItems(filteredData);
+    } else {
+      // If value is not a string, log the issue or handle it gracefully
+      console.warn("Search value is not a string:", value);
+    }
+  };
+
+  const columns = [
+    { title: "No.", dataIndex: "number", key: "number", width: 100 },
+    { title: "Description", dataIndex: "displayName", key: "displayName", width: 100 },
+    { title: "Description 2", dataIndex: "displayName2", key: "displayName2", width: 150 },
+    { title: "Item Type", dataIndex: "type", key: "type", width: 50 },
+    { title: "Unit Price", dataIndex: "unitPrice", key: "unitPrice", width: 50 },
+    { title: "Quantity", dataIndex: "inventory", key: "inventory", width: 50 },
+    {
+      title: "Picture",
+      dataIndex: "itemPicture",
+      key: "itemPicture",
+      width: 70,
+      render: (itemPicture) => <Image src={itemPicture} alt="Image" style={{ borderRadius: "5px" }} />,
+    },
+    {
+      title: "Action",
+      fixed: "right",
+      width: 120,
+      render: (record) => (
+        <Space>
+          <Button style={{ fontSize: 10, padding: 10 }} onClick={() => showEditModal(record)}>
+            Edit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this item?"
+            onConfirm={() => deleteItem(record.id)} // Call delete function
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button style={{ fontSize: 10, padding: 10 }} danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div>
-      <div>
-        <Space>
-          <h2>Items</h2>
-          <Input.Search 
-            placeholder='Search'
-          />
-          <Button type="primary" onClick={showModal}>
-           New
-          </Button>
-          <Modal
-            width={800} 
-            title="Item Card"
-            open={isModalOpen}
-            onOk={() => handleOk(Item)}
-            onCancel={handleCancel}
-          >
-      <Row gutter={16}>
-        {/* Left Half - Editable Item Details */}
-        <Col span={12}>
-          <Space direction="vertical">
-            
-          <Input addonBefore="Item No." value={Item.number} onChange={(e) => handleChange('number', e.target.value)} />
-          <Input addonBefore="Item No." value={Item.displayName} onChange={(e) => handleChange('displayName', e.target.value)} />
-          <Input addonBefore="Item No." value={Item.displayName2} onChange={(e) => handleChange('displayName2', e.target.value)} />
-          </Space>
-        </Col>
-        <Col span={12}>
-          <Space direction="vertical">
-          <Input addonBefore="Item No." value={Item.type} onChange={(e) => handleChange('type', e.target.value)} />
-          <InputNumber 
-            addonBefore="Item No." 
-            style={{ width: '100%' }}
-            value={Item.unitPrice} 
-            onChange={(value) => handleChange('unitPrice', value)} 
-            />
-          <InputNumber 
-          addonBefore="Item No." 
-          style={{ width: '100%' }}
-          value={Item.inventory} 
-          onChange={(value) => handleChange('inventory', value)} 
-          />
-          </Space>
-        </Col>
-      </Row>
-    </Modal>
-        </Space>
-      </div>
-      <Table
-        // className={styles.customTable}
-        columns={columns}
-        dataSource={Item}
-        onChange={handleChange}
-        scroll={{
-          x: 'max-content',
-          y: 55 * 8,
-        }}
+      <Space>
+        <h2>Items</h2>
+        <Input.Search
+          placeholder="Search by Number"
+          onSearch={handleSearch}
+          onChange={(e) => handleSearch(e.target.value)}
         />
-      </div>
+        <Button type="primary" onClick={showAddModal}>
+          New
+        </Button>
+      </Space>
+
+      {/* Insert/Edit Modal */}
+      <Modal
+        width={800}
+        title={isEditing ? "Edit Item" : "Create New Item"}
+        open={isModalOpen}
+        onOk={saveItem}
+        onCancel={() => setIsModalOpen(false)}
+        confirmLoading={loading}
+        centered
+      >
+        <Card>
+          <Form layout="vertical">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item label="Item No.">
+                  <Input
+                    value={currentItem?.number}
+                    onChange={(e) => handleInputChange("number", e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Description">
+                  <Input
+                    value={currentItem?.displayName}
+                    onChange={(e) => handleInputChange("displayName", e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Description 2">
+                  <Input
+                    value={currentItem?.displayName2}
+                    onChange={(e) => handleInputChange("displayName2", e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Attach Image">
+                  <Upload beforeUpload={() => false} showUploadList={true}>
+                    <Button icon={<UploadOutlined />}>Upload Image</Button>
+                  </Upload>
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item label="Item Type">
+                  <Select
+                    value={currentItem?.type}
+                    onChange={(value) => handleInputChange("type", value)}
+                    placeholder="Select Item Type"
+                  >
+                    <Option value="Laptop">Laptop</Option>
+                    <Option value="Desktop">Desktop</Option>
+                    <Option value="Tablet">Tablet</Option>
+                    <Option value="Accessories">Accessories</Option>
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label="Unit Price">
+                  <Input
+                    value={currentItem?.unitPrice}
+                    onChange={(e) => handleInputChange("unitPrice", e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Quantity">
+                  <Input
+                    value={currentItem?.inventory}
+                    onChange={(e) => handleInputChange("inventory", e.target.value)}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      </Modal>
+
+      {/* Items Table */}
+      <Table columns={columns} dataSource={filteredItems} scroll={{ x: "max-content", y: 55 * 8 }} />
+    </div>
   );
 };
 export default Item;
